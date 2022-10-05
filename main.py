@@ -13,7 +13,7 @@ def generate_url(url_base, tv_show, season, episode):
 
 
 fields = ['Season','Episode','Title','Genre','imdbRating','imdbVotes']
-seasons = range(1,9)
+seasons = range(1,2)
 episodes = range(1,12)
 
 data = []
@@ -26,7 +26,7 @@ for season in seasons:
 
         if response.status_code == 200:
             content = json.loads(response.text)
-            if content.get('Error') is None:
+            if content.get('Error') is None: # sem dados, portanto skipar 
                 # Season = content.get('Season')
                 # Episode = content.get('Episode')
                 # Title = content.get('Title')
@@ -42,5 +42,8 @@ for season in seasons:
             print(f'Request falhou com status {response.status_code}')
 
 dataframe = pd.DataFrame(data, columns=fields)
+dataframe['imdbRating'] = dataframe['imdbRating'].replace(to_replace='.', value=',')
+dataframe['imdbRating'] = dataframe['imdbRating'].astype('float')
+dataframe['above_nine'] = np.where(dataframe['imdbRating'] >= 9, True, False)
 
 dataframe.to_excel(f"{film}.xlsx")
